@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ママのためのごはんルーレット</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;
+  background:linear-gradient(180deg,#fff7ec,#fff0f7);
+  color:#4a3140;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:18px;
+}
+.app{
+  width:100%;
+  max-width:430px;
+  background:rgba(255,255,255,.94);
+  border-radius:28px;
+  padding:24px;
+  box-shadow:0 18px 40px rgba(110,70,40,.13);
+  text-align:center;
+}
+h1{font-size:25px;line-height:1.4;margin:0 0 10px}
+.note{
+  background:#fff;
+  border:1px solid #f3d8c5;
+  border-radius:18px;
+  padding:12px;
+  font-size:13px;
+  line-height:1.7;
+  color:#7a5a45;
+  margin-bottom:18px;
+}
+.result{
+  min-height:145px;
+  background:#fff;
+  border:1px solid #f0d5e2;
+  border-radius:24px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:18px;
+  font-size:30px;
+  font-weight:800;
+  line-height:1.35;
+  margin:16px 0;
+}
+.badge{
+  display:inline-block;
+  font-size:13px;
+  padding:6px 12px;
+  border-radius:999px;
+  background:#f7dce8;
+  color:#6b324b;
+  margin-bottom:8px;
+}
+.reward .result{
+  background:linear-gradient(180deg,#fff3c4,#fff);
+  border-color:#f0c75a;
+}
+.reward .badge{
+  background:#fff0a8;
+  color:#7a5d00;
+}
+button{
+  width:100%;
+  border:none;
+  border-radius:999px;
+  padding:16px;
+  font-size:17px;
+  font-weight:800;
+  background:#e27b51;
+  color:#fff;
+  box-shadow:0 10px 24px rgba(226,123,81,.25);
+}
+.history{
+  margin-top:18px;
+  text-align:left;
+  font-size:13px;
+  color:#7a5a45;
+}
+.history h2{
+  font-size:14px;
+  margin:0 0 8px;
+}
+.history ul{
+  padding-left:20px;
+  margin:0;
+  line-height:1.7;
+}
+.confetti{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+}
+.piece{
+  position:absolute;
+  top:-20px;
+  font-size:20px;
+  animation:fall 1.4s linear forwards;
+}
+@keyframes fall{
+  to{transform:translateY(110vh) rotate(540deg);opacity:.1}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <h1>🍚 ママのための<br>ごはんルーレット</h1>
+  <div class="note">
+    5回に1回くらい、外食・出前・買ってくる系が出るよ。<br>
+    今日は何にする？
+  </div>
+
+  <div class="badge" id="badge">今日のごはん</div>
+  <div class="result" id="result">ルーレットを<br>回してね</div>
+
+  <button id="spin">ごはんを決める</button>
+
+  <div class="history">
+    <h2>最近出たごはん</h2>
+    <ul id="history"></ul>
+  </div>
+</div>
+
+<div class="confetti" id="confetti"></div>
+
+<script>
+const normalMeals=[
+"ハンバーグ",
+"ラザニア",
+"生姜焼き",
+"焼き魚",
+"しゃぶしゃぶ",
+"すき焼き",
+"なべ",
+"キャベツ豆腐",
+"カレー",
+"シチュー",
+"パスタ",
+"親子丼",
+"すた丼",
+"ラーメン",
+"オムライス",
+"手巻き寿司"
+];
+
+const rewardMeals=[
+"おめでとう！外食！",
+"CoCo壱",
+"なか卯",
+"お惣菜",
+"コンビニ",
+"ピザーラ",
+"おめでとう！すかいらーく！",
+"ドミノピザ",
+"おめでとう！てんてん！"
+];
+
+const app=document.getElementById("app");
+const result=document.getElementById("result");
+const badge=document.getElementById("badge");
+const history=document.getElementById("history");
+
+function pick(arr){
+  return arr[Math.floor(Math.random()*arr.length)];
+}
+
+function spin(){
+  const isReward=Math.random()<0.2;
+  const meal=isReward?pick(rewardMeals):pick(normalMeals);
+
+  app.classList.toggle("reward",isReward);
+  badge.textContent=isReward?"🎉 ご褒美枠":"🍚 おうちごはん";
+  result.textContent=meal;
+
+  addHistory(meal,isReward);
+  if(isReward) confetti();
+}
+
+function addHistory(meal,isReward){
+  const li=document.createElement("li");
+  li.textContent=(isReward?"🎉 ":"🍚 ")+meal;
+  history.prepend(li);
+  while(history.children.length>5){
+    history.removeChild(history.lastChild);
+  }
+}
+
+function confetti(){
+  const box=document.getElementById("confetti");
+  const marks=["🎉","✨","🍕","🍛","🍣","🥳"];
+  for(let i=0;i<24;i++){
+    const p=document.createElement("div");
+    p.className="piece";
+    p.textContent=pick(marks);
+    p.style.left=Math.random()*100+"vw";
+    p.style.animationDelay=(Math.random()*0.3)+"s";
+    box.appendChild(p);
+    setTimeout(()=>p.remove(),1700);
+  }
+}
+
+document.getElementById("spin").onclick=spin;
+</script>
+</body>
+</html>
